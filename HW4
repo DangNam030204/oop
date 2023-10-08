@@ -1,1 +1,196 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Globalization;
+using System.Threading.Tasks;
+
+namespace HW4
+{
+    using System;
+    using System.Collections.Generic;
+
+    class NganHang
+    {
+        private List<TaiKhoan> danhSachTaiKhoan;
+
+        public NganHang()
+        {
+            danhSachTaiKhoan = new List<TaiKhoan>();
+        }
+
+        public void MoTaiKhoan(string soTaiKhoan, string tenChuTaiKhoan, string soCMND, double soTien, double laiSuat)
+        {
+            TaiKhoan taiKhoan = new TaiKhoan(soTaiKhoan, tenChuTaiKhoan, soCMND, soTien, laiSuat);
+            danhSachTaiKhoan.Add(taiKhoan);
+        }
+    
+        public void NapTien(string soTaiKhoan, double soTien, DateTime ngayGiaoDich)
+        {
+            TaiKhoan taiKhoan = TimTaiKhoan(soTaiKhoan);
+            if (taiKhoan != null)
+            {
+                taiKhoan.NapTien(soTien, ngayGiaoDich);
+            }
+        }
+
+        public void RutTien(string soTaiKhoan, double soTien, DateTime ngayGiaoDich)
+        {
+            TaiKhoan taiKhoan = TimTaiKhoan(soTaiKhoan);
+            if (taiKhoan != null)
+            {
+                taiKhoan.RutTien(soTien, ngayGiaoDich);
+            }
+        }
+        
+
+        public void CapNhatLaiSuat()
+        {
+            foreach (TaiKhoan taiKhoan in danhSachTaiKhoan)
+            {
+                taiKhoan.CapNhatLaiSuat();
+            }
+        }
+
+        public void InBaoCao()
+        {
+            foreach (TaiKhoan taiKhoan in danhSachTaiKhoan)
+            {
+                taiKhoan.InBaoCao();
+            }
+        }
+
+        private TaiKhoan TimTaiKhoan(string soTaiKhoan)
+        {
+            foreach (TaiKhoan taiKhoan in danhSachTaiKhoan)
+            {
+                if (taiKhoan.SoTaiKhoan == soTaiKhoan)
+                {
+                    return taiKhoan;
+                }
+            }
+            return null;
+        }
+    }
+
+    class TaiKhoan
+    {
+        public string SoTaiKhoan { get; private set; }
+        public string TenChuTaiKhoan { get; private set; }
+        public string SoCMND { get; private set; }
+        public double SoTien { get; private set; }
+        public double LaiSuat { get; private set; }
+        private List<GiaoDich> danhSachGiaoDich;
+
+        public TaiKhoan(string soTaiKhoan, string tenChuTaiKhoan, string soCMND, double soTien, double laiSuat)
+        {
+            SoTaiKhoan = soTaiKhoan;
+            TenChuTaiKhoan = tenChuTaiKhoan;
+            SoCMND = soCMND;
+            SoTien = soTien;
+            LaiSuat = laiSuat;
+            danhSachGiaoDich = new List<GiaoDich>();
+        }
+
+        public void NapTien(double soTien, DateTime ngayGiaoDich)
+        {
+            SoTien += soTien;
+            GiaoDich giaoDich = new GiaoDich(ngayGiaoDich, "Nạp tiền", soTien);
+            danhSachGiaoDich.Add(giaoDich);
+        }
+
+        public void RutTien(double soTien, DateTime ngayGiaoDich)
+        {
+            if (SoTien >= soTien)
+            {
+                SoTien -= soTien;
+                GiaoDich giaoDich = new GiaoDich(ngayGiaoDich, "Rút tiền", soTien);
+                danhSachGiaoDich.Add(giaoDich);
+            }
+            else
+            {
+                Console.WriteLine("Số dư không đủ để rút tiền.");
+            }
+        }
+
+        public void CapNhatLaiSuat()
+        {
+            double laiSuatTien = SoTien * LaiSuat / 100;
+            SoTien += laiSuatTien;
+        }
+
+        public void InBaoCao()
+        {
+            Console.WriteLine("Số hiệu tài khoản: " + SoTaiKhoan);
+            Console.WriteLine("Số tiền hiện có: " + SoTien);
+            Console.WriteLine("Các giao dịch thực hiện:");
+            Console.WriteLine();
+            Console.WriteLine($"| {"Ngày",11} | {"Kiểu giao dịch",15} | {"Số tiền",10} |");
+            string dem = $"| {"Ngày",11} | {"Kiểu giao dịch",15} | {"Số tiền",10} |";
+            int check = 0;
+            string v = "";
+            while (check < dem.Length)
+            {
+                v+= "-";
+                check++;
+            }
+            Console.WriteLine(v);
+            foreach (GiaoDich giaoDich in danhSachGiaoDich)
+            {
+                string x=giaoDich.NgayGiaoDich.ToString("dd/MM/yyyy");
+                Console.WriteLine($"| {x,11} | {giaoDich.KieuGiaoDich,15} | {giaoDich.SoTien,10} |");
+                Console.WriteLine(v);
+            }
+            Console.WriteLine();
+            Console.WriteLine("**********************************************");
+            Console.WriteLine();
+        }
+    }
+
+    class GiaoDich
+    {
+        public DateTime NgayGiaoDich { get; private set; }
+        public string KieuGiaoDich { get; private set; }
+        public double SoTien { get; private set; }
+
+        public GiaoDich(DateTime ngayGiaoDich, string kieuGiaoDich, double soTien)
+        {
+            NgayGiaoDich = ngayGiaoDich;
+            KieuGiaoDich = kieuGiaoDich;
+            SoTien = soTien;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.InputEncoding = Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
+            //---------------DỮ LIỆU ĐỀ BÀI CHO-------------
+
+            NganHang nganHang = new NganHang();
+
+            nganHang.MoTaiKhoan("001", "Alice", "901", 100, 5);
+            nganHang.MoTaiKhoan("002", "Bob", "902", 50, 5);
+            nganHang.MoTaiKhoan("003", "Alice", "901", 200, 10);
+            nganHang.MoTaiKhoan("004", "Eve", "903", 200, 10);
+
+            nganHang.NapTien("001", 100, new DateTime(2005, 7, 15));
+            nganHang.NapTien("001", 100, new DateTime(2005, 7, 31));
+            nganHang.NapTien("002", 150, new DateTime(2005, 7, 1));
+            nganHang.NapTien("002", 150, new DateTime(2005, 7, 15));
+            nganHang.NapTien("003", 200, new DateTime(2005, 7, 5));
+            nganHang.NapTien("004", 250, new DateTime(2005, 7, 31));
+
+            nganHang.RutTien("001", 10, new DateTime(2005, 7, 10));
+            nganHang.RutTien("002", 20, new DateTime(2005, 7, 15));
+            nganHang.RutTien("003", 30, new DateTime(2005, 7, 31));
+            nganHang.RutTien("004", 40, new DateTime(2005, 7, 31));
+            nganHang.CapNhatLaiSuat();
+            nganHang.InBaoCao();
+            Console.ReadKey();
+        }        
+    }
+}
 
